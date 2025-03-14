@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EduFlex</string>
+    <string name="welcome_back">مرحبًا بك</string>
+    <string name="log_in_to_your_account">سجل الدخول إلى حسابك</string>
+    <string name="email">البريد الإلكتروني</string>
+    <string name="password">كلمة المرور</string>
+    <string name="forgot_password">هل نسيت كلمة المرور؟</string>
+    <string name="show_password">عرض كلمة المرور</string>
+    <string name="hide_password">إخفاء كلمة المرور</string>
+    <string name="log_in">تسجيل الدخول</string>
+    <string name="don_t_have_an_account">ليس لديك حساب؟</string>
+    <string name="sign_up">إنشاء حساب</string>
+    <string name="create_account">إنشاء حساب</string>
+    <string name="join_our_learning_platform">انضم إلى منصتنا التعليمية</string>
+    <string name="username">اسم المستخدم</string>
+    <string name="select_role">اختر الدور</string>
+    <string name="register">تسجيل</string>
+    <string name="already_have_an_account">لديك حساب بالفعل؟</string>
+    <string name="change_language">تغيير اللغة</string>
+</resources>

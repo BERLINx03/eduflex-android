@@ -26,15 +26,18 @@ import androidx.compose.ui.unit.sp
 import com.example.eduflex.R
 import com.example.eduflex.auth.presentation.intents.AuthIntents
 import com.example.eduflex.auth.presentation.viewmodels.AuthViewModel
+import com.example.eduflex.core.presentation.viewmodel.LanguageViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
+    languageViewModel: LanguageViewModel,
     onNavigateToRegister: () -> Unit,
     onNavigateToHome: () -> Unit
 ) {
     val authState by viewModel.authState.collectAsState()
+    val currentLanguage by languageViewModel.currentLanguage.collectAsState()
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(key1 = true) {
@@ -54,151 +57,184 @@ fun LoginScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxSize()
             ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = null,
-                    modifier = Modifier.size(120.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = stringResource(R.string.welcome_back),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = stringResource(R.string.log_in_to_your_account),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                var showPassword by remember { mutableStateOf(false) }
-
-                OutlinedTextField(
-                    value = authState.email,
-                    onValueChange = { viewModel.onIntent(AuthIntents.EmailChanged(it)) },
-                    label = { Text(stringResource(R.string.email)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = null
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                    ),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = authState.password,
-                    onValueChange = { viewModel.onIntent(AuthIntents.PasswordChanged(it)) },
-                    label = { Text(stringResource(R.string.password)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = null
-                        )
-                    },
-                    trailingIcon = {
-                        IconButton(onClick = { showPassword = !showPassword }) {
-                            Icon(
-                                imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (showPassword) stringResource(R.string.hide_password) else stringResource(
-                                    R.string.show_password
-                                )
-                            )
-                        }
-                    },
-                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            focusManager.clearFocus()
-                            viewModel.onIntent(AuthIntents.Login(authState.email, authState.password))
-                        }
-                    ),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    TextButton(onClick = { TODO("/* Handle forgot password */") }) {
-                        Text(stringResource(R.string.forgot_password))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = { viewModel.onIntent(AuthIntents.Login(authState.email, authState.password)) },
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    enabled = !authState.isLoading
+                        .padding(8.dp),
+                    contentAlignment = Alignment.TopEnd
                 ) {
-                    if (authState.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.log_in),
-                            fontSize = 16.sp
-                        )
+                    IconButton(
+                        onClick = {
+                            val newLanguage = if (currentLanguage == "ar") "en" else "ar"
+                            languageViewModel.changeLanguage(newLanguage)
+                        }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = stringResource(R.string.change_language)
+                            )
+                            Text(
+                                text = currentLanguage.uppercase(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
                     }
                 }
 
-                AnimatedVisibility(visible = authState.errorMessage != null) {
-                    authState.errorMessage?.let { error ->
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = error,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                        contentDescription = null,
+                        modifier = Modifier.size(120.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
-                        text = stringResource(R.string.don_t_have_an_account),
+                        text = stringResource(R.string.welcome_back),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = stringResource(R.string.log_in_to_your_account),
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    TextButton(onClick = onNavigateToRegister) {
-                        Text(stringResource(R.string.sign_up))
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    var showPassword by remember { mutableStateOf(false) }
+
+                    OutlinedTextField(
+                        value = authState.email,
+                        onValueChange = { viewModel.onIntent(AuthIntents.EmailChanged(it)) },
+                        label = { Text(stringResource(R.string.email)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Email,
+                                contentDescription = null
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                        ),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = authState.password,
+                        onValueChange = { viewModel.onIntent(AuthIntents.PasswordChanged(it)) },
+                        label = { Text(stringResource(R.string.password)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { showPassword = !showPassword }) {
+                                Icon(
+                                    imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = if (showPassword) stringResource(R.string.hide_password) else stringResource(
+                                        R.string.show_password
+                                    )
+                                )
+                            }
+                        },
+                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus()
+                                viewModel.onIntent(AuthIntents.Login(authState.email, authState.password))
+                            }
+                        ),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                        TextButton(onClick = { TODO("/* Handle forgot password */") }) {
+                            Text(stringResource(R.string.forgot_password))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = { viewModel.onIntent(AuthIntents.Login(authState.email, authState.password)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        enabled = !authState.isLoading
+                    ) {
+                        if (authState.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.log_in),
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+
+                    AnimatedVisibility(visible = authState.errorMessage != null) {
+                        authState.errorMessage?.let { error ->
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = error,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.don_t_have_an_account),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        TextButton(onClick = onNavigateToRegister) {
+                            Text(stringResource(R.string.sign_up))
+                        }
                     }
                 }
             }

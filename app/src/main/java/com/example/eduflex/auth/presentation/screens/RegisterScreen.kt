@@ -26,16 +26,20 @@ import androidx.compose.ui.unit.sp
 import com.example.eduflex.R
 import com.example.eduflex.auth.presentation.intents.AuthIntents
 import com.example.eduflex.auth.presentation.viewmodels.AuthViewModel
+import com.example.eduflex.core.presentation.viewmodel.LanguageViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     viewModel: AuthViewModel,
+    languageViewModel: LanguageViewModel,
     onNavigateToLogin: () -> Unit,
 ) {
     val authState by viewModel.authState.collectAsState()
     val focusManager = LocalFocusManager.current
+
+    val currentLanguage by languageViewModel.currentLanguage.collectAsState()
 
     val roleOptions = listOf("student", "instructor")
     var expanded by remember { mutableStateOf(false) }
@@ -56,6 +60,33 @@ fun RegisterScreen(
                 .padding(16.dp),
             color = MaterialTheme.colorScheme.background
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                IconButton(
+                    onClick = {
+                        val newLanguage = if (currentLanguage == "ar") "en" else "ar"
+                        languageViewModel.changeLanguage(newLanguage)
+                    }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = stringResource(R.string.change_language)
+                        )
+                        Text(
+                            text = currentLanguage.uppercase(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -134,7 +165,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Password field
                 var showPassword by remember { mutableStateOf(false) }
                 OutlinedTextField(
                     value = authState.password,
@@ -215,7 +245,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Register button
                 Button(
                     onClick = { viewModel.onIntent(AuthIntents.Register(authState.username, authState.email, authState.password, authState.role)) },
                     modifier = Modifier
@@ -242,7 +271,6 @@ fun RegisterScreen(
                     }
                 }
 
-                // Error message
                 AnimatedVisibility(visible = authState.errorMessage != null) {
                     authState.errorMessage?.let { error ->
                         Spacer(modifier = Modifier.height(16.dp))
@@ -256,7 +284,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Login navigation
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,

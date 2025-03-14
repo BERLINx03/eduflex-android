@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EduFlex</string>
+    <string name="app_name" translatable="false">EduFlex</string>
     <string name="welcome_back">Welcome Back</string>
     <string name="log_in_to_your_account">Log in to your account</string>
     <string name="email">Email</string>
@@ -16,4 +16,5 @@
     <string name="select_role">select role</string>
     <string name="register">register</string>
     <string name="already_have_an_account">already have an account?</string>
+    <string name="change_language">change langauge</string>
 </resources>
